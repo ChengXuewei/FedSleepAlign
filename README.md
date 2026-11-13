@@ -28,6 +28,7 @@ fedsleepalign/        the method
 train.py              every training run (FedBN, FedAvg, Hybrid BN, local, centralized; all scalings)
 preprocessing/        raw databases -> 30-s epochs at 100 Hz, one file per channel and recording
 analysis/             the numbers of the paper (one script per part, see below)
+release/              subject splits and results of all runs of the paper (see Release files)
 figures/              make_figures.py (all data figures), data_augmentation.py, FL_structure.tex (overview diagram)
 scripts/run_all.sh    all training runs of the paper
 ```
@@ -120,9 +121,31 @@ Run from the repository root with `FSA_DATA` and `FSA_RESULTS` set (`python anal
 | `scaling.py` | Sec. 3.3, App. B.2, fig:scaling | PRS-variant runs, `artifact.py`, `recordings.py` |
 | `calibration.py --part P` (GPU) | App. B.4, B.6, fig:calibration | every round of `fedbn_robust_s42` fold 0 |
 | `delimit.py` (GPU) | App. B.1 | fold-0 models of `fedbn_robust_s42`, raw SleepEDF and SHHS |
-| `export.py` | App. B.1 (release tables) | all runs |
+| `export.py` | App. B.1 (the files in `release/`) | all runs |
+| `release_tables.py` | Tab. 1, 2, 4, paired tests, bootstrap | `release/` only |
 
 `calibration.py` has the parts `timing`, `bsweep --rounds A-B`, `btest`, `budget`, `perclient` and `summary`.
+
+## Release files
+
+`release/` holds the subject splits and the results of all runs of the paper, written by `analysis/export.py`:
+
+| File | Content |
+|---|---|
+| `manifest.csv` | database, subject and test half of every recording for the subject splits 42 (paper) and 1 (App. B.7) |
+| `metrics.csv` | accuracy, macro F1, kappa, stage recalls and confusion matrix per run, fold, client and evaluation |
+| `selected_rounds.csv` | the M = 10 selected rounds per run, fold and evaluation |
+| `recordings.csv` | kept and correctly staged epochs per run, fold, test recording and evaluation |
+
+Runs are named `<scheme>_<scaling>_s<seed>`, with `_p1_dual` for the subject split 1 and `_c<i>` for the local
+training of client i. The evaluations are `S`, `R` and `Q`, the crossed `S_Q` (rounds selected with S, tested with Q),
+`Q_S`, `S_R` and `R_S`, and, for `--val dual`, the selection on subject-disjoint validation (`S-subj`, ...).
+
+```
+python analysis/release_tables.py      # Tab. 1, 2 and 4, the paired tests and the bootstrap from release/ alone
+```
+
+It runs in a few seconds on a CPU and needs neither the data nor the trained models.
 
 ## Figures
 
